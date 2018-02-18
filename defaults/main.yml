@@ -1,4 +1,15 @@
 nginx_user: www-data
 nginx_package_name: nginx
 nginx_home: /etc/nginx
-nginx_sites_enabled: [ 'default' ] # Show default nginx page, unless anything else is defined
+
+# List of Nginx server blocks to deploy. These should match a
+# template file in templates/nginx/sites-available, or have a
+# redirect defined below in nginx_site_redirects
+nginx_sites_enabled:
+  - default # Show default nginx page, unless anything else is defined
+
+# Mapping for domain redirects. This will deploy sites to automatically
+# perform an HTTP 301 redirect for requests to the source domain
+# using the template in templates/nginx/_redirect
+nginx_site_redirects:
+# source.example.com: destination.example.com
