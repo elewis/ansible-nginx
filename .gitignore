@@ -1,0 +1,4 @@
+templates/nginx/sites-available/*
+!templates/nginx/sites-available/default
+!templates/nginx/sites-available/default-deny
+!templates/nginx/sites-available/_redirect

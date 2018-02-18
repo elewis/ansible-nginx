@@ -1,0 +1,29 @@
+# {{ ansible_managed }}
+
+###
+#
+# Default server directives to drop requests with unknown/missing Host header
+#
+# Examples:
+# - vuln scanner attempting to access the ip directly
+# - unaffiliated domain pointed to the same ip
+#
+###
+
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	return 444;
+}
+
+server {
+	listen 443 ssl default_server;
+	listen [::]:443 ssl default_server;
+
+	# Provide a dummy self-signed cert for default connections
+    ssl_certificate ssl/nginx-self.pem;
+    ssl_certificate_key ssl/nginx-self.key;
+
+	return 444;
+}

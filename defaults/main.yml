@@ -1,0 +1,4 @@
+nginx_user: www-data
+nginx_package_name: nginx
+nginx_home: /etc/nginx
+nginx_sites_enabled: [ 'default' ] # Show default nginx page, unless anything else is defined

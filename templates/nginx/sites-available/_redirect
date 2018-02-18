@@ -1,0 +1,28 @@
+# {{ ansible_managed }}
+
+server {
+	listen 80;
+	listen [::]:80;
+	server_name {{ item }};
+
+	include snippets/letsencrypt-acme-challenge.conf;
+
+	location / {
+		return 301 https://{{ nginx_site_redirects[item] }}$request_uri;
+	}
+}
+
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+	server_name {{ item }};
+
+	ssl_certificate /etc/letsencrypt/live/{{ item }}/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/{{ item }}/privkey.pem;
+
+	include snippets/https-security-headers.conf;
+
+	location / {
+		return 301 https://{{ nginx_site_redirects[item] }}$request_uri;
+	}
+}

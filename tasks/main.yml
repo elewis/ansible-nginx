@@ -1,0 +1,11 @@
+
+- import_tasks: install_nginx.yml
+- import_tasks: setup_nginx.yml
+- import_tasks: setup_ssl.yml
+- import_tasks: setup_service.yml
+
+- name: start nginx
+  service:
+    name: nginx
+    state: started
+    enabled: yes

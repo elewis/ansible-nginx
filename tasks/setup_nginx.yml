@@ -1,0 +1,65 @@
+
+- name: deploy server conf
+  template:
+    src: nginx/nginx.conf
+    dest: "{{ nginx_home }}/nginx.conf"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  notify: reload nginx
+
+- name: deploy snippets
+  copy:
+    src: "{{ item }}"
+    dest: "{{ nginx_home }}/snippets/{{ item | basename }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_fileglob:
+    - nginx/snippets/*
+  loop_control:
+    label: "{{ item | basename }}"
+  notify: reload nginx
+
+- name: deploy sites
+  template:
+    src: nginx/sites-available/{{ item }}
+    dest: "{{ nginx_home }}/sites-available/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ nginx_sites_enabled }}"
+  when: item not in nginx_site_redirects
+  notify: reload nginx
+
+- name: deploy redirects
+  template:
+    src: nginx/sites-available/_redirect
+    dest: "{{ nginx_home }}/sites-available/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ nginx_sites_enabled }}"
+  when: item in nginx_site_redirects
+  notify: reload nginx
+
+- name: enable sites
+  file:
+    src: "{{ nginx_home }}/sites-available/{{ item }}"
+    dest: "{{ nginx_home }}/sites-enabled/{{ item }}"
+    state: link
+  with_items: "{{ nginx_sites_enabled }}"
+  notify: reload nginx
+
+- shell: ls -1 {{ nginx_home }}/sites-enabled
+  changed_when: False
+  register: sites_enabled
+
+- name: remove disabled sites
+  file:
+    name: "{{ nginx_home }}/sites-enabled/{{ item }}"
+    state: absent
+  with_items: "{{ sites_enabled.stdout_lines }}"
+  when: item not in nginx_sites_enabled
+  notify: reload nginx

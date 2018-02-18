@@ -1,0 +1,42 @@
+
+- file:
+    name: "{{ nginx_home }}/ssl"
+    state: directory
+    owner: root
+    group: root
+  when: "'default-deny' in nginx_sites_enabled"
+  tags: ssl tls
+
+- name: deploy dummy default certs (for default-deny site)
+  template:
+    src: nginx/ssl/{{ item }}
+    dest: "{{ nginx_home }}/ssl/{{ item }}"
+  with_items:
+    - nginx-self.key
+    - nginx-self.pem
+  when: "'default-deny' in nginx_sites_enabled"
+  tags: ssl tls
+
+- name: install certbot
+  package:
+    name: python-certbot-nginx
+    state: installed
+  tags: ssl tls letsencrypt
+
+- name: add missing certs
+  command: /usr/bin/certbot certonly -n --webroot -d {{ item }} --webroot-path /var/www/letsencrypt
+  args:
+    creates: /etc/letsencrypt/live/{{ item }}
+  with_items: "{{ nginx_sites_enabled }}"
+  when: item != 'default-deny' and item != 'default'
+  tags: ssl tls letsencrypt
+
+- name: add cron job to renew certs
+  cron:
+    name: certbot-renew
+    minute: 0
+    hour: 0
+    day: 1
+    job: /usr/bin/certbot renew
+    state: present
+  tags: ssl tls letsencrypt
