@@ -7,6 +7,7 @@
     group: root
     mode: 0644
     backup: yes
+  become: yes
   notify: reload nginx
 
 - name: deploy snippets
@@ -20,6 +21,7 @@
     - nginx/snippets/*
   loop_control:
     label: "{{ item | basename }}"
+  become: yes
   notify: reload nginx
 
 - name: deploy sites
@@ -29,8 +31,10 @@
     owner: root
     group: root
     mode: 0644
-  with_items: "{{ nginx_sites_enabled }}"
+  with_items: "{{ nginx_sites_enabled | default([]) }}"
   when: item not in nginx_site_redirects
+  become: yes
+  failed_when: false
   notify: reload nginx
 
 - name: deploy redirects
@@ -40,8 +44,9 @@
     owner: root
     group: root
     mode: 0644
-  with_items: "{{ nginx_sites_enabled }}"
+  with_items: "{{ nginx_sites_enabled | default([]) }}"
   when: item in nginx_site_redirects
+  become: yes
   notify: reload nginx
 
 - name: enable sites
@@ -50,10 +55,12 @@
     dest: "{{ nginx_home }}/sites-enabled/{{ item }}"
     state: link
   with_items: "{{ nginx_sites_enabled }}"
+  become: yes
   notify: reload nginx
 
 - shell: ls -1 {{ nginx_home }}/sites-enabled
   changed_when: False
+  become: yes
   register: sites_enabled
 
 - name: remove disabled sites
@@ -62,4 +69,5 @@
     state: absent
   with_items: "{{ sites_enabled.stdout_lines }}"
   when: item not in nginx_sites_enabled
+  become: yes
   notify: reload nginx

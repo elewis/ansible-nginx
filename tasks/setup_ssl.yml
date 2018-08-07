@@ -20,7 +20,8 @@
 - name: install certbot
   package:
     name: python-certbot-nginx
-    state: installed
+    state: present
+  become: yes
   tags: ssl tls letsencrypt
 
 - name: add missing certs
@@ -29,6 +30,7 @@
     creates: /etc/letsencrypt/live/{{ item }}
   with_items: "{{ nginx_sites_enabled }}"
   when: item != 'default-deny' and item != 'default'
+  become: yes
   tags: ssl tls letsencrypt
 
 - name: add cron job to renew certs
@@ -39,4 +41,5 @@
     day: 1
     job: /usr/bin/certbot renew
     state: present
+  become: yes
   tags: ssl tls letsencrypt
