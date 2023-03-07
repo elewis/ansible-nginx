@@ -19,10 +19,26 @@
   become: yes
   tags: ssl tls
 
-- name: install certbot
+- name: install certbot (1/2)
   package:
-    name: python-certbot-nginx
+    name: certbot
     state: present
+  become: yes
+  tags: ssl tls letsencrypt
+
+- name: install certbot (2/2)
+  package:
+    name: python3-certbot-nginx
+    state: present
+  become: yes
+  tags: ssl tls letsencrypt
+
+- name: create certbot webroot
+  file:
+    name: "/var/www/letsencrypt"
+    state: directory
+    owner: root
+    group: root
   become: yes
   tags: ssl tls letsencrypt
 
