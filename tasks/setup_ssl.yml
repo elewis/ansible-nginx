@@ -5,6 +5,7 @@
     owner: root
     group: root
   when: "'default-deny' in nginx_sites_enabled"
+  become: yes
   tags: ssl tls
 
 - name: deploy dummy default certs (for default-deny site)
@@ -15,6 +16,7 @@
     - nginx-self.key
     - nginx-self.pem
   when: "'default-deny' in nginx_sites_enabled"
+  become: yes
   tags: ssl tls
 
 - name: install certbot
