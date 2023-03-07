@@ -11,5 +11,5 @@ nginx_sites_enabled:
 # Mapping for domain redirects. This will deploy sites to automatically
 # perform an HTTP 301 redirect for requests to the source domain
 # using the template in templates/nginx/_redirect
-nginx_site_redirects:
+nginx_site_redirects: {}
 # source.example.com: destination.example.com
