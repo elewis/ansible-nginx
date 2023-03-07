@@ -18,6 +18,7 @@
   when: "'default-deny' in nginx_sites_enabled"
   become: yes
   tags: ssl tls
+  notify: reload nginx
 
 - name: install certbot (1/2)
   package:
@@ -50,6 +51,7 @@
   when: item != 'default-deny' and item != 'default'
   become: yes
   tags: ssl tls letsencrypt
+  notify: reload nginx
 
 - name: add cron job to renew certs
   cron:
