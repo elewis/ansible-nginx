@@ -1,7 +1,6 @@
 
 - import_tasks: install_nginx.yml
 - import_tasks: setup_nginx.yml
-- import_tasks: setup_ssl.yml
 - import_tasks: setup_service.yml
 
 - name: start nginx
@@ -9,3 +8,9 @@
     name: nginx
     state: started
     enabled: yes
+
+- name: flush handlers
+  meta: flush_handlers
+
+# Nginx must be running to use webroot mode for certbot
+- import_tasks: setup_ssl.yml
